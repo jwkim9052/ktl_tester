@@ -17,49 +17,49 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string/>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QTableWidget" name="tableWidget">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>1210</width>
-      <height>930</height>
-     </rect>
-    </property>
-    <column>
-     <property name="text">
-      <string>Filename</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Ref</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>HYP</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>WER</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Total time</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>SLT time</string>
-     </property>
-    </column>
-   </widget>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QTableWidget" name="tableWidget">
+        <column>
+         <property name="text">
+          <string>Filename</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Ref</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>HYP</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>WER</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Total time</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>SLT time</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -75,14 +75,13 @@
      <string>File</string>
     </property>
     <addaction name="actionVideo_tester"/>
-    <addaction name="actionGloss_tester"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionVideo_tester">
    <property name="text">
-    <string>Video_tester</string>
+    <string>Open</string>
    </property>
   </action>
   <action name="actionGloss_tester">

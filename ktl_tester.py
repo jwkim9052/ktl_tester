@@ -1,28 +1,31 @@
-from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QFileDialog, QTableWidget, QTableWidgetItem, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QFileDialog, QTableWidget, QTableWidgetItem, QMessageBox, QStatusBar
 from PyQt5 import uic
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-import sys, os
-import time
+from PyQt5.QtTest import QTest
+import sys, os, time, csv
 
 class UI(QMainWindow):
     def __init__(self):
         super(UI, self).__init__()
         uic.loadUi("ktl_ui.ui", self)
+        self.setWindowTitle("수어번역시간 측정기")
         self.show()
 
         # Define Widgets
         self.video_action = self.findChild(QAction,"actionVideo_tester")
-        self.gloss_action = self.findChild(QAction,"actionGloss_tester")
+        #self.gloss_action = self.findChild(QAction,"actionGloss_tester")
+        self.status_bar = self.findChild(QStatusBar,"statusbar")
         self.table_widget = self.findChild(QTableWidget, "tableWidget")
         #self.table_widget.setRowCount(3)
         #self.table_widget.setColumnCount(3)
-        self.table_widget.setHorizontalHeaderLabels(('Filename','Ref','HYP','WER','Total time','SLT time'))
+        self.table_widget.setHorizontalHeaderLabels(('파일명','Ref-값','HYP-예측값','WER','종합추론시간','수어번역시간'))
 
         #self.video_action.triggered.connect(lambda: self.clicked("video action"))
         #self.gloss_action.triggered.connect(lambda: self.clicked("gloss action"))
         self.video_action.triggered.connect(self.selectVideoFiles)
-        self.gloss_action.triggered.connect(self.selectCSVFile)
+        #self.gloss_action.triggered.connect(self.selectCSVFile)
+        self.total_result = []
 
     def clicked(self, text):
         print(text)
@@ -41,12 +44,16 @@ class UI(QMainWindow):
     def selectVideoFiles(self):
         fnames, _ = QFileDialog.getOpenFileNames(self, "Open File", "", "MP4 Files (*.mp4);;All Files(*)")
         if fnames:
+            self.total_result = []
             self.table_widget.setRowCount(0)
             numFiles = len(fnames)
-            msg = QMessageBox()
-            msg.setWindowTitle("Selected Files")
-            msg.setText(f"{numFiles} file(s) have been selected!")
-            x = msg.exec_()
+            #msg = QMessageBox()
+            #msg.setWindowTitle("Selected Files")
+            #msg.setText(f"{numFiles} file(s) have been selected!")
+            #x = msg.exec_()
+
+            self.status_bar.showMessage(f"{numFiles} have been selected!")
+            self.repaint()
 
             for fname in fnames:
                 # AI Video Tester
@@ -55,6 +62,8 @@ class UI(QMainWindow):
                 result = self.ai_video_tester(fname)
                 # The end of AI Video Tester
 
+
+                self.total_result.append(result)
                 rowCount = self.table_widget.rowCount()
                 self.table_widget.insertRow(rowCount)
                 self.table_widget.setItem(rowCount, 0, QTableWidgetItem(str(result[0])))
@@ -64,9 +73,21 @@ class UI(QMainWindow):
                 self.table_widget.setItem(rowCount, 4, QTableWidgetItem(str(result[4])))
                 self.table_widget.setItem(rowCount, 5, QTableWidgetItem(str(result[5])))
 
+                self.status_bar.showMessage(f"{rowCount+1}/{numFiles} have been completed!")
+                self.repaint()
+
+            # csv file
+            if len(self.total_result) > 0:
+                header = ['Filename','Ref','HYP','WER','Total time','SLT time']
+                with open('result.csv', 'w', encoding='UTF8', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerow(header)
+                    writer.writerows(self.total_result)
+
     # this is an example function.
     def ai_video_tester(self, filename):
-        time.sleep(0.5)
+        #time.sleep(0.5)
+        QTest.qWait(600)
         base_filename = os.path.basename(filename)
         return_list = [base_filename, "2.5", "2.3", "4.5", "7.2", "3.2"]
         return return_list
