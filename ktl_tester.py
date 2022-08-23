@@ -14,18 +14,18 @@ class UI(QMainWindow):
 
         # Define Widgets
         self.video_action = self.findChild(QAction,"actionVideo_tester")
-        #self.gloss_action = self.findChild(QAction,"actionGloss_tester")
         self.status_bar = self.findChild(QStatusBar,"statusbar")
         self.table_widget = self.findChild(QTableWidget, "tableWidget")
-        #self.table_widget.setRowCount(3)
-        #self.table_widget.setColumnCount(3)
         self.table_widget.setHorizontalHeaderLabels(('파일명','Ref-값','HYP-예측값','WER','종합추론시간','수어번역시간'))
+        self.table_widget.setColumnWidth(3,200)
+        self.table_widget.setColumnWidth(4,200)
+        self.table_widget.setColumnWidth(5,200)
 
-        #self.video_action.triggered.connect(lambda: self.clicked("video action"))
-        #self.gloss_action.triggered.connect(lambda: self.clicked("gloss action"))
         self.video_action.triggered.connect(self.selectVideoFiles)
-        #self.gloss_action.triggered.connect(self.selectCSVFile)
         self.total_result = []
+        self.total_WER = 0.0
+        self.total_infer = 0.0
+        self.total_slt = 0.0
 
     def clicked(self, text):
         print(text)
@@ -45,6 +45,10 @@ class UI(QMainWindow):
         fnames, _ = QFileDialog.getOpenFileNames(self, "Open File", "", "MP4 Files (*.mp4);;All Files(*)")
         if fnames:
             self.total_result = []
+            self.total_WER = 0.0
+            self.total_infer = 0.0
+            self.total_slt = 0.0
+
             self.table_widget.setRowCount(0)
             numFiles = len(fnames)
             #msg = QMessageBox()
@@ -64,6 +68,10 @@ class UI(QMainWindow):
 
 
                 self.total_result.append(result)
+                self.total_WER += float(result[3])
+                self.total_infer += float(result[4])
+                self.total_slt += float(result[5])
+
                 rowCount = self.table_widget.rowCount()
                 self.table_widget.insertRow(rowCount)
                 self.table_widget.setItem(rowCount, 0, QTableWidgetItem(str(result[0])))
@@ -75,6 +83,19 @@ class UI(QMainWindow):
 
                 self.status_bar.showMessage(f"{rowCount+1}/{numFiles} have been completed!")
                 self.repaint()
+            
+            rowCount = self.table_widget.rowCount()
+            tline = rowCount
+            last_line = [ "Average", "", "", f"{self.total_WER/tline}", f"{self.total_infer/tline}", f"{self.total_slt/tline}" ]
+            #print( tline )
+            #print( self.total_WER )
+            self.table_widget.insertRow(rowCount)
+            self.table_widget.setItem(rowCount, 0, QTableWidgetItem(str(last_line[0])))
+            self.table_widget.setItem(rowCount, 1, QTableWidgetItem(str(last_line[1])))
+            self.table_widget.setItem(rowCount, 2, QTableWidgetItem(str(last_line[2])))
+            self.table_widget.setItem(rowCount, 3, QTableWidgetItem(str(last_line[3])))
+            self.table_widget.setItem(rowCount, 4, QTableWidgetItem(str(last_line[4])))
+            self.table_widget.setItem(rowCount, 5, QTableWidgetItem(str(last_line[5])))
 
             # csv file
             if len(self.total_result) > 0:
@@ -83,19 +104,14 @@ class UI(QMainWindow):
                     writer = csv.writer(f)
                     writer.writerow(header)
                     writer.writerows(self.total_result)
+                    writer.writerow(last_line)
 
     # this is an example function.
     def ai_video_tester(self, filename):
-        #time.sleep(0.5)
         QTest.qWait(600)
         base_filename = os.path.basename(filename)
         return_list = [base_filename, "2.5", "2.3", "4.5", "7.2", "3.2"]
         return return_list
-
-    def ai_csv_tester(self, filename):
-        time.sleep(0.5)
-        base_filename = os.path.basename(filename)
-        return 758
 
 app = QApplication(sys.argv)
 UIWindow = UI()
