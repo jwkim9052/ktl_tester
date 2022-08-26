@@ -70,14 +70,18 @@ class UI(QMainWindow):
             numFiles = len(fnames)
 
             self.status_bar.showMessage(f"{numFiles} have been selected!")
-            self.repaint()
+            self.status_bar.repaint()
 
             rowNum=0
             for fname in fnames:
                 # AI Video Tester
                 # Input parameter has full path and filename
                 # output is a list ['filename', ref, HYP, WER, inference time, slt time]
+                #self.blockSignals(True)
+                #self.setUpdatesEnabled(False)
                 result = self.ai_video_tester(fname)
+                #self.blockSignals(False)
+                #self.setUpdatesEnabled(True)
                 # The end of AI Video Tester
 
 
@@ -91,22 +95,22 @@ class UI(QMainWindow):
                 self.total_slt += float(result[9])
 
                 self.status_bar.showMessage(f"{rowNum+1}/{numFiles} have been completed!")
-                #self.repaint()
+                self.status_bar.repaint()
                 rowNum += 1
 
             for x in range(rowNum):
                 rowCount = self.table_widget.rowCount()
                 self.table_widget.insertRow(rowCount)
-                self.table_widget.setItem(rowCount, 0, QTableWidgetItem(str(result[0])))
-                self.table_widget.setItem(rowCount, 1, QTableWidgetItem(str(result[1])))
-                self.table_widget.setItem(rowCount, 2, QTableWidgetItem(str(result[2])))
-                self.table_widget.setItem(rowCount, 3, QTableWidgetItem(str(result[3])))
-                self.table_widget.setItem(rowCount, 4, QTableWidgetItem(str(result[4])))
-                self.table_widget.setItem(rowCount, 5, QTableWidgetItem(str(result[5])))
-                self.table_widget.setItem(rowCount, 6, QTableWidgetItem(str(result[6])))
-                self.table_widget.setItem(rowCount, 7, QTableWidgetItem(str(result[7])))
-                self.table_widget.setItem(rowCount, 8, QTableWidgetItem(str(result[8])))
-                self.table_widget.setItem(rowCount, 9, QTableWidgetItem(str(result[9])))
+                self.table_widget.setItem(rowCount, 0, QTableWidgetItem(str(self.total_result[rowCount][0])))
+                self.table_widget.setItem(rowCount, 1, QTableWidgetItem(str(self.total_result[rowCount][1])))
+                self.table_widget.setItem(rowCount, 2, QTableWidgetItem(str(self.total_result[rowCount][2])))
+                self.table_widget.setItem(rowCount, 3, QTableWidgetItem(str(self.total_result[rowCount][3])))
+                self.table_widget.setItem(rowCount, 4, QTableWidgetItem(str(self.total_result[rowCount][4])))
+                self.table_widget.setItem(rowCount, 5, QTableWidgetItem(str(self.total_result[rowCount][5])))
+                self.table_widget.setItem(rowCount, 6, QTableWidgetItem(str(self.total_result[rowCount][6])))
+                self.table_widget.setItem(rowCount, 7, QTableWidgetItem(str(self.total_result[rowCount][7])))
+                self.table_widget.setItem(rowCount, 8, QTableWidgetItem(str(self.total_result[rowCount][8])))
+                self.table_widget.setItem(rowCount, 9, QTableWidgetItem(str(self.total_result[rowCount][9])))
 
             
             rowCount = self.table_widget.rowCount()
@@ -218,7 +222,8 @@ class UI(QMainWindow):
 
     # this is an example function.
     def ai_video_tester(self, filename):
-        QTest.qWait(600)
+        #QTest.qWait(3000)
+        time.sleep(0.5)
         base_filename = os.path.basename(filename)
         return_list = [base_filename, "2.5", "2.3", '1', '2', '3', '4', "4.5", "7.2", "3.2"]
         return return_list
